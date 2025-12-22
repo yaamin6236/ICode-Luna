@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Users, DollarSign, Calendar as CalendarIcon, TrendingDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -11,7 +11,6 @@ import RegistrationForm from '@/components/forms/RegistrationForm';
 import { Button } from '@/components/ui/button';
 import { useRegistrations } from '@/hooks/useRegistrations';
 import { registrationAPI } from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
   const [formOpen, setFormOpen] = useState(false);
