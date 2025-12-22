@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -143,24 +143,17 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center justify-between"
         >
-          <div>
-            <h1 className="text-5xl font-display font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
-              Manage camp registrations and track enrollment
-            </p>
-          </div>
-          <Button onClick={() => setFormOpen(true)} size="lg" className="shadow-organic-lg">
-            <Plus className="w-5 h-5" />
-            New Registration
-          </Button>
+          <h1 className="text-5xl font-display font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+            Manage camp registrations and track enrollment
+          </p>
         </motion.div>
 
         {/* Registration Form Modal */}
@@ -200,7 +193,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="space-y-4"
+            className="flex flex-col gap-4"
           >
             {/* Date Header */}
             <div className="flex items-center justify-between">
@@ -271,15 +264,15 @@ export default function Dashboard() {
             {/* Search & Filters */}
             <SearchFilters onSearch={handleSearch} />
 
-            {/* Registrations Table */}
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
+            {/* Registrations Table - Full Height */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 flex flex-col flex-1">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-display text-muted-foreground">
                   Showing {paginatedRegistrations?.length || 0} of {filteredRegistrations?.length || 0}
                 </span>
               </div>
               
-              <div className="max-h-[500px] overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 <RegistrationTable
                   registrations={paginatedRegistrations || []}
                   onEdit={handleEdit}
