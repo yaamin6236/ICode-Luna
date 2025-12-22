@@ -37,8 +37,8 @@ export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }:
   const monthEnd = endOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Get enrollments for a specific date
-  const getEnrollmentsForDate = (date: Date) => {
+  // Get all registrations for a specific date (for passing to onClick)
+  const getRegistrationsForDate = (date: Date) => {
     return registrations.filter(reg => {
       if (!reg.campDates || reg.campDates.length === 0) return false;
       
@@ -54,6 +54,12 @@ export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }:
         }
       });
     });
+  };
+
+  // Get ONLY enrolled (non-cancelled) enrollments for display count
+  const getEnrolledCountForDate = (date: Date) => {
+    const regs = getRegistrationsForDate(date);
+    return regs.filter(reg => reg.status === 'enrolled').length;
   };
 
   // Get the first day of week offset
@@ -121,8 +127,9 @@ export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }:
 
           {/* Calendar days */}
           {daysInMonth.map((date, index) => {
-            const enrollments = getEnrollmentsForDate(date);
-            const hasEnrollments = enrollments.length > 0;
+            const allRegistrations = getRegistrationsForDate(date);
+            const enrolledCount = getEnrolledCountForDate(date);
+            const hasRegistrations = allRegistrations.length > 0;
             const isToday = isSameDay(date, new Date());
             const isSelected = selectedDate && isSameDay(date, selectedDate);
 
@@ -132,29 +139,29 @@ export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }:
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.2, delay: index * 0.01 }}
-                onClick={() => hasEnrollments && onDateClick(date, enrollments)}
-                whileHover={hasEnrollments ? { scale: 1.05, y: -2 } : {}}
-                whileTap={hasEnrollments ? { scale: 0.95 } : {}}
+                onClick={() => hasRegistrations && onDateClick(date, allRegistrations)}
+                whileHover={hasRegistrations ? { scale: 1.05, y: -2 } : {}}
+                whileTap={hasRegistrations ? { scale: 0.95 } : {}}
                 className={cn(
                   "aspect-square p-3 rounded-2xl transition-all duration-200 relative group",
                   "flex flex-col items-center justify-center shadow-organic-sm",
-                  hasEnrollments
+                  hasRegistrations
                     ? "bg-secondary/10 border-2 border-secondary/30 hover:border-secondary hover:shadow-organic cursor-pointer"
                     : "bg-muted/30 border-2 border-transparent hover:border-border/50",
                   isToday && !isSelected && "ring-2 ring-primary/30 ring-offset-2 ring-offset-background",
                   isSelected && "bg-primary/20 border-primary ring-2 ring-primary ring-offset-2 ring-offset-background shadow-glow-warm"
                 )}
-                disabled={!hasEnrollments}
+                disabled={!hasRegistrations}
               >
                 <span className={cn(
                   "text-sm font-display font-medium mb-1",
                   isToday && !isSelected && "text-primary font-bold",
                   isSelected && "text-primary font-bold",
-                  hasEnrollments && !isToday && !isSelected && "text-secondary font-semibold"
+                  hasRegistrations && !isToday && !isSelected && "text-secondary font-semibold"
                 )}>
                   {format(date, 'd')}
                 </span>
-                {hasEnrollments && (
+                {enrolledCount > 0 && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -163,7 +170,7 @@ export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }:
                   >
                     <Users className="h-3 w-3 text-secondary" />
                     <span className="text-xs font-bold text-secondary tabular-nums">
-                      {enrollments.length}
+                      {enrolledCount}
                     </span>
                   </motion.div>
                 )}
