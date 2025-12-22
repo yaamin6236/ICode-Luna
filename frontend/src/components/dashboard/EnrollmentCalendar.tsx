@@ -27,9 +27,10 @@ interface Registration {
 interface EnrollmentCalendarProps {
   registrations: Registration[];
   onDateClick: (date: Date, enrollments: Registration[]) => void;
+  selectedDate?: Date | null;
 }
 
-export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCalendarProps) {
+export function EnrollmentCalendar({ registrations, onDateClick, selectedDate }: EnrollmentCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -38,12 +39,21 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
 
   // Get enrollments for a specific date
   const getEnrollmentsForDate = (date: Date) => {
-    return registrations.filter(reg => 
-      reg.status === 'enrolled' && 
-      reg.campDates.some(campDate => 
-        isSameDay(new Date(campDate.date), date)
-      )
-    );
+    return registrations.filter(reg => {
+      if (!reg.campDates || reg.campDates.length === 0) return false;
+      
+      return reg.campDates.some((campDate: any) => {
+        try {
+          // campDate can be either a string or an object with a date property
+          const dateStr = typeof campDate === 'string' ? campDate : (campDate.date || campDate);
+          if (!dateStr) return false;
+          return isSameDay(new Date(dateStr as string), date);
+        } catch (e) {
+          console.error('Error parsing camp date:', campDate, e);
+          return false;
+        }
+      });
+    });
   };
 
   // Get the first day of week offset
@@ -114,6 +124,7 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
             const enrollments = getEnrollmentsForDate(date);
             const hasEnrollments = enrollments.length > 0;
             const isToday = isSameDay(date, new Date());
+            const isSelected = selectedDate && isSameDay(date, selectedDate);
 
             return (
               <motion.button
@@ -130,14 +141,16 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
                   hasEnrollments
                     ? "bg-secondary/10 border-2 border-secondary/30 hover:border-secondary hover:shadow-organic cursor-pointer"
                     : "bg-muted/30 border-2 border-transparent hover:border-border/50",
-                  isToday && "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-glow-warm-sm"
+                  isToday && !isSelected && "ring-2 ring-primary/30 ring-offset-2 ring-offset-background",
+                  isSelected && "bg-primary/20 border-primary ring-2 ring-primary ring-offset-2 ring-offset-background shadow-glow-warm"
                 )}
                 disabled={!hasEnrollments}
               >
                 <span className={cn(
                   "text-sm font-display font-medium mb-1",
-                  isToday && "text-primary font-bold",
-                  hasEnrollments && !isToday && "text-secondary font-semibold"
+                  isToday && !isSelected && "text-primary font-bold",
+                  isSelected && "text-primary font-bold",
+                  hasEnrollments && !isToday && !isSelected && "text-secondary font-semibold"
                 )}>
                   {format(date, 'd')}
                 </span>

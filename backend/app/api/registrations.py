@@ -212,6 +212,48 @@ async def delete_registration(
     return {"status": "success", "message": "Registration cancelled"}
 
 
+@router.get("/by-camp-date/", response_model=List[RegistrationResponse])
+async def get_registrations_by_camp_date(
+    camp_date: str = Query(..., description="Camp date to filter by (YYYY-MM-DD)"),
+    status: Optional[RegistrationStatus] = None,
+    current_user = Depends(get_current_user)
+):
+    """
+    Get all registrations for a specific camp date.
+    This queries the campDates array to find registrations with camps on the specified date.
+    Optionally filter by status (enrolled/cancelled).
+    """
+    db = get_database()
+    
+    # Parse the date string and create date range for the entire day
+    try:
+        date_obj = datetime.strptime(camp_date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    
+    # Create start and end of day in UTC
+    start_of_day = datetime.combine(date_obj.date(), datetime.min.time())
+    end_of_day = datetime.combine(date_obj.date(), datetime.max.time())
+    
+    # Build query - campDates is an array of datetime objects
+    query = {
+        "campDates": {
+            "$elemMatch": {
+                "$gte": start_of_day,
+                "$lte": end_of_day
+            }
+        }
+    }
+    
+    # Add status filter if provided
+    if status:
+        query["status"] = status.value
+    
+    registrations = await db.registrations.find(query).sort("childName", 1).to_list(length=500)
+    
+    return [registration_helper(reg) for reg in registrations]
+
+
 @router.get("/search/by-child/{child_name}")
 async def search_by_child_name(
     child_name: str,

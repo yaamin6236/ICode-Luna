@@ -87,6 +87,13 @@ export const registrationAPI = {
     const response = await api.get(`/api/registrations/search/by-child/${childName}`);
     return response.data;
   },
+  
+  getByCampDate: async (campDate: string, status?: string) => {
+    const response = await api.get('/api/registrations/by-camp-date/', {
+      params: { camp_date: campDate, status }
+    });
+    return response.data;
+  },
 };
 
 // Analytics API

@@ -25,11 +25,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-organic-mesh">
+    <div className="min-h-screen bg-organic-mesh flex">
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -280 }}
+        animate={{ x: sidebarOpen ? 0 : -288 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="fixed left-0 top-0 bottom-0 w-72 bg-card border-r border-border/50 shadow-organic-xl z-50 texture-paper"
       >
@@ -84,9 +84,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </motion.aside>
 
-      {/* Main Content */}
-      <div
-        className={`transition-all duration-300 ${
+      {/* Main Content - Full width container */}
+      <div 
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
           sidebarOpen ? 'ml-72' : 'ml-0'
         }`}
       >
@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="p-8">
+        <main className="flex-1 p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
