@@ -99,7 +99,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="rounded-full -ml-40"
             >
-              <Menu className="w-5 h-5" />
+              <motion.div
+                animate={{ rotate: sidebarOpen ? 0 : 180 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <Menu className="w-5 h-5" />
+              </motion.div>
             </Button>
             <div className="text-sm text-muted-foreground font-display">
               {new Date().toLocaleDateString('en-US', {
