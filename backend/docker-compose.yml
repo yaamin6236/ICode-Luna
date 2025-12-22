@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+      - MONGODB_DB_NAME=icode_portal
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
+      - GMAIL_CREDENTIALS_PATH=/app/credentials.json
+      - GMAIL_TOKEN_PATH=/app/token.json
+      - PUBSUB_VERIFICATION_TOKEN=${PUBSUB_VERIFICATION_TOKEN:-verification-token}
+    volumes:
+      - ./credentials.json:/app/credentials.json:ro
+      - ./token.json:/app/token.json
+      - ./app:/app/app
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
