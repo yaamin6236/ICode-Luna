@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { TrendingUp, DollarSign, XCircle, BarChart3, Users, Calendar } from 'lucide-react';
+import { TrendingUp, DollarSign, XCircle, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { KPICard } from '@/components/dashboard/KPICard';
 import RevenueChart from '@/components/dashboard/RevenueChart';
-import DailyCapacityView from '@/components/dashboard/DailyCapacityView';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useRevenue, useDailyCapacity, useCancellations, useDashboardSummary } from '@/hooks/useAnalytics';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useRevenue, useDashboardSummary } from '@/hooks/useAnalytics';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Analytics() {
   const [dateRange] = useState({
@@ -15,9 +14,7 @@ export default function Analytics() {
     end_date: new Date().toISOString().split('T')[0],
   });
 
-  const { data: revenueData, isLoading: revenueLoading } = useRevenue(dateRange);
-  const { data: capacityData, isLoading: capacityLoading } = useDailyCapacity();
-  const { data: cancellationData } = useCancellations(dateRange);
+  const { data: revenueData } = useRevenue(dateRange);
   const { data: summary } = useDashboardSummary();
 
   const campTypeData = revenueData?.revenueByCampType
@@ -172,80 +169,6 @@ export default function Analytics() {
           </Card>
         </motion.div>
 
-        {/* Daily Capacity Calendar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.6 }}
-        >
-          <DailyCapacityView
-            data={capacityData?.capacityData || []}
-            loading={capacityLoading}
-          />
-        </motion.div>
-
-        {/* Cancellation Stats */}
-        {cancellationData && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.7 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <div className="p-2 bg-destructive/10 rounded-xl">
-                    <XCircle className="w-5 h-5 text-destructive" />
-                  </div>
-                  Cancellation Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="p-8 rounded-2xl border-2 border-destructive/30 bg-destructive/5 shadow-organic-sm"
-                  >
-                    <div className="text-4xl font-display font-bold text-destructive mb-2 tabular-nums">
-                      {cancellationData.totalCancellations}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-display">
-                      Total Cancellations
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.9 }}
-                    className="p-8 rounded-2xl border-2 border-destructive/30 bg-destructive/5 shadow-organic-sm"
-                  >
-                    <div className="text-4xl font-display font-bold text-destructive mb-2 tabular-nums font-mono">
-                      ${cancellationData.lostRevenue.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-display">
-                      Lost Revenue
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 1 }}
-                    className="p-8 rounded-2xl border-2 border-destructive/30 bg-destructive/5 shadow-organic-sm"
-                  >
-                    <div className="text-4xl font-display font-bold text-destructive mb-2 tabular-nums">
-                      {Object.keys(cancellationData.cancellationsByDate || {}).length}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-display">
-                      Days with Cancellations
-                    </div>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
       </div>
     </DashboardLayout>
   );
