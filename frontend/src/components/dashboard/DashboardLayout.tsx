@@ -91,13 +91,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }`}
       >
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border/50">
-          <div className="flex items-center justify-between px-8 py-5">
+        <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border/50 -ml-48 pl-48">
+          <div className="flex items-center justify-between pr-8 py-5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="rounded-full"
+              className="rounded-full -ml-40"
             >
               <Menu className="w-5 h-5" />
             </Button>
@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 py-8 -ml-48 pr-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

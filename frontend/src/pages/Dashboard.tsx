@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -149,18 +149,11 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center justify-between"
         >
-          <div>
-            <h1 className="text-5xl font-display font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
-              Manage camp registrations and track enrollment
-            </p>
-          </div>
-          <Button onClick={() => setFormOpen(true)} size="lg" className="shadow-organic-lg">
-            <Plus className="w-5 h-5" />
-            New Registration
-          </Button>
+          <h1 className="text-5xl font-display font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+            Manage camp registrations and track enrollment
+          </p>
         </motion.div>
 
         {/* Registration Form Modal */}
