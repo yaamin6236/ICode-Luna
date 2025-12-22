@@ -12,6 +12,7 @@ import {
   Legend,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { TrendingUp } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface RevenueChartProps {
@@ -33,16 +34,17 @@ export default function RevenueChart({
           day: 'numeric',
         }),
         revenue,
+        fullDate: date,
       }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
   }, [data]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass-effect p-3 rounded-lg border border-white/20">
-          <p className="text-sm font-medium">{payload[0].payload.date}</p>
-          <p className="text-lg font-bold text-primary">
+        <div className="bg-card p-4 rounded-2xl shadow-organic-lg border-0 texture-paper">
+          <p className="text-xs text-muted-foreground font-display mb-1">{payload[0].payload.date}</p>
+          <p className="text-xl font-bold font-mono text-primary tabular-nums">
             {formatCurrency(payload[0].value)}
           </p>
         </div>
@@ -52,9 +54,14 @@ export default function RevenueChart({
   };
 
   return (
-    <Card className="glass-effect">
+    <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-xl">
+            <TrendingUp className="w-5 h-5 text-primary" />
+          </div>
+          {title}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -62,53 +69,62 @@ export default function RevenueChart({
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="hsl(263, 70%, 50%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(13, 62%, 60%)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(13, 62%, 60%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis
                 dataKey="date"
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
+                fontSize={11}
+                fontFamily="Manrope, sans-serif"
+                tickLine={false}
               />
               <YAxis
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
+                fontSize={11}
+                fontFamily="JetBrains Mono, monospace"
                 tickFormatter={(value) => `$${value}`}
+                tickLine={false}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 2, opacity: 0.2 }} />
               <Area
-                type="monotone"
+                type="natural"
                 dataKey="revenue"
-                stroke="hsl(263, 70%, 50%)"
+                stroke="hsl(13, 62%, 60%)"
                 fillOpacity={1}
                 fill="url(#colorRevenue)"
-                strokeWidth={2}
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 6, fill: 'hsl(13, 62%, 60%)', strokeWidth: 0 }}
               />
             </AreaChart>
           ) : (
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis
                 dataKey="date"
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
+                fontSize={11}
+                fontFamily="Manrope, sans-serif"
+                tickLine={false}
               />
               <YAxis
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
+                fontSize={11}
+                fontFamily="JetBrains Mono, monospace"
                 tickFormatter={(value) => `$${value}`}
+                tickLine={false}
               />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 2, opacity: 0.2 }} />
               <Line
-                type="monotone"
+                type="natural"
                 dataKey="revenue"
-                stroke="hsl(263, 70%, 50%)"
+                stroke="hsl(13, 62%, 60%)"
                 strokeWidth={3}
-                dot={{ fill: 'hsl(263, 70%, 50%)', r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ fill: 'hsl(13, 62%, 60%)', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 7, fill: 'hsl(13, 62%, 60%)', strokeWidth: 0 }}
               />
             </LineChart>
           )}
@@ -117,4 +133,3 @@ export default function RevenueChart({
     </Card>
   );
 }
-

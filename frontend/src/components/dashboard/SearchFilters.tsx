@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter, X, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SearchFiltersProps {
   onSearch: (filters: any) => void;
@@ -33,82 +34,107 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
     onSearch({});
   };
 
+  const hasActiveFilters = status || startDate || endDate;
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search by child name, parent email..."
-            className="pl-10"
+            className="pl-11"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
-        <Button onClick={handleSearch}>Search</Button>
+        <Button onClick={handleSearch} size="lg">
+          <Search className="w-4 h-4" />
+          Search
+        </Button>
         <Button
           variant="outline"
+          size="lg"
           onClick={() => setShowFilters(!showFilters)}
+          className="relative"
         >
-          <Filter className="w-4 h-4 mr-2" />
+          <Filter className="w-4 h-4" />
           Filters
+          {hasActiveFilters && (
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-glow-pulse" />
+          )}
         </Button>
       </div>
 
       {/* Advanced Filters */}
-      {showFilters && (
-        <Card className="p-4 glass-effect">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="">All</option>
-                <option value="enrolled">Enrolled</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+          >
+            <Card className="p-6 overflow-hidden">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="p-2 bg-accent/10 rounded-xl">
+                  <Sparkles className="w-4 h-4 text-accent" />
+                </div>
+                <h3 className="font-display font-semibold">Advanced Filters</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <select
+                    id="status"
+                    className="w-full h-11 px-4 rounded-[10px] border-2 border-input bg-background text-sm font-display transition-all duration-300 focus:outline-none focus:border-primary/50 focus:shadow-glow-warm-sm hover:border-primary/30"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="enrolled">Enrolled</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
 
-            <div>
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Start Date</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
 
-            <div>
-              <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">End Date</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
 
-          <div className="flex gap-2 mt-4">
-            <Button onClick={handleSearch} className="flex-1">
-              Apply Filters
-            </Button>
-            <Button variant="outline" onClick={handleReset}>
-              <X className="w-4 h-4 mr-2" />
-              Reset
-            </Button>
-          </div>
-        </Card>
-      )}
+              <div className="flex gap-3 mt-6">
+                <Button onClick={handleSearch} className="flex-1" size="lg">
+                  Apply Filters
+                </Button>
+                <Button variant="outline" onClick={handleReset} size="lg">
+                  <X className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-

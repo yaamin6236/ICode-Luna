@@ -5,8 +5,9 @@ import { authAPI } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { Leaf, Sparkles, Lock, Mail } from 'lucide-react';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -39,63 +40,191 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md px-4"
-      >
-        <Card className="glass-effect">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-3xl font-bold text-center gradient-primary bg-clip-text text-transparent">
-              ICode Portal
-            </CardTitle>
-            <CardDescription className="text-center">
-              Sign in to manage camp registrations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="admin"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
+    <div className="min-h-screen flex items-center justify-center bg-organic-mesh p-4">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        {/* Left Side - Branding */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+          className="hidden lg:flex flex-col justify-center space-y-8 p-12"
+        >
+          {/* Logo & Brand */}
+          <div className="space-y-6">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center gap-4 p-4 bg-card rounded-[24px] shadow-organic-lg"
+            >
+              <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-glow-warm">
+                <Leaf className="w-12 h-12 text-white" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+              <div>
+                <h1 className="text-4xl font-display font-bold text-gradient-organic">
+                  ICode Portal
+                </h1>
+                <p className="text-muted-foreground font-display">Camp Management System</p>
               </div>
-              <Button
-                type="submit"
-                className="w-full gradient-primary"
-                disabled={loading}
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-            <div className="mt-4 text-center text-sm text-muted-foreground">
-              <p>Demo credentials:</p>
-              <p>Username: <code className="text-primary">admin</code></p>
-              <p>Password: <code className="text-primary">admin123</code></p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="space-y-4"
+            >
+              <h2 className="text-3xl font-display font-bold leading-tight">
+                Welcome to your
+                <br />
+                <span className="text-gradient-organic">growth management</span>
+                <br />
+                workspace
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Streamline your camp registrations, track enrollments, and nurture every student's learning journey—all in one beautiful, intuitive platform.
+              </p>
+            </motion.div>
+
+            {/* Features */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="space-y-4"
+            >
+              {[
+                { icon: Sparkles, text: 'Real-time enrollment tracking' },
+                { icon: Leaf, text: 'Automated email processing' },
+                { icon: Mail, text: 'Beautiful analytics & reports' },
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1, duration: 0.3 }}
+                  className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-organic-sm hover:shadow-organic transition-all"
+                >
+                  <div className="p-2 bg-primary/10 rounded-xl">
+                    <feature.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="font-display font-medium">{feature.text}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Decorative organic shapes */}
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl -z-10" />
+        </motion.div>
+
+        {/* Right Side - Login Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-full"
+        >
+          <Card className="p-10 lg:p-12 shadow-organic-xl">
+            {/* Mobile Logo */}
+            <div className="lg:hidden flex items-center gap-3 mb-8">
+              <div className="p-3 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-glow-warm">
+                <Leaf className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-display font-bold text-gradient-organic">
+                  ICode Portal
+                </h1>
+                <p className="text-sm text-muted-foreground">Camp Management</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-display font-bold">Sign in</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  Enter your credentials to access your dashboard
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="admin"
+                      className="pl-11"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-11"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12"
+                  size="lg"
+                  disabled={loading}
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </form>
+
+              {/* Demo Credentials */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-6 p-5 rounded-2xl bg-muted/30 border-2 border-border/50"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-accent/10 rounded-lg mt-0.5">
+                    <Sparkles className="w-4 h-4 text-accent" />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <p className="text-sm font-display font-semibold">Demo Access</p>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>
+                        <span className="font-medium">Username:</span>{' '}
+                        <code className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono">
+                          admin
+                        </code>
+                      </p>
+                      <p>
+                        <span className="font-medium">Password:</span>{' '}
+                        <code className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono">
+                          admin123
+                        </code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 }
-

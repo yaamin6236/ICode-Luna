@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Users, DollarSign, Calendar as CalendarIcon, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { KPICard } from '@/components/dashboard/KPICard';
 import RegistrationTable from '@/components/dashboard/RegistrationTable';
@@ -58,18 +59,23 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between"
+        >
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-5xl font-display font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
               Manage camp registrations and track enrollment
             </p>
           </div>
-          <Button onClick={() => setFormOpen(true)} size="lg">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={() => setFormOpen(true)} size="lg" className="shadow-organic-lg">
+            <Plus className="w-5 h-5" />
             New Registration
           </Button>
-        </div>
+        </motion.div>
 
         {/* Registration Form Modal */}
         <RegistrationForm
@@ -90,38 +96,67 @@ export default function Dashboard() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KPICard
-            title="Total Enrolled"
-            value={summary?.totalEnrolled || 0}
-            subtitle="Active students"
-            icon={Users}
-            variant="primary"
-          />
-          <KPICard
-            title="Net Revenue"
-            value={`$${(summary?.netRevenue || 0).toLocaleString()}`}
-            subtitle="All-time (enrolled - cancelled)"
-            icon={DollarSign}
-            variant="success"
-          />
-          <KPICard
-            title="Upcoming Camps"
-            value={summary?.upcomingCampsCount || 0}
-            subtitle="Next 7 days"
-            icon={CalendarIcon}
-            variant="default"
-          />
-          <KPICard
-            title="Cancellations"
-            value={summary?.recentCancellations || 0}
-            subtitle="Last 30 days"
-            icon={TrendingDown}
-            variant="warning"
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <KPICard
+              title="Total Enrolled"
+              value={summary?.totalEnrolled || 0}
+              subtitle="Active students"
+              icon={Users}
+              variant="primary"
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <KPICard
+              title="Net Revenue"
+              value={`$${(summary?.netRevenue || 0).toLocaleString()}`}
+              subtitle="All-time (enrolled - cancelled)"
+              icon={DollarSign}
+              variant="success"
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <KPICard
+              title="Upcoming Camps"
+              value={summary?.upcomingCampsCount || 0}
+              subtitle="Next 7 days"
+              icon={CalendarIcon}
+              variant="default"
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+          >
+            <KPICard
+              title="Cancellations"
+              value={summary?.recentCancellations || 0}
+              subtitle="Last 30 days"
+              icon={TrendingDown}
+              variant="warning"
+            />
+          </motion.div>
         </div>
 
         {/* Calendar and Daily View */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        >
           {/* Calendar */}
           <div className="lg:col-span-2">
             <EnrollmentCalendar
@@ -132,25 +167,28 @@ export default function Dashboard() {
 
           {/* Daily Enrollments */}
           <div>
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">
+            <Card className="p-8 h-full">
+              <h3 className="text-xl font-display font-semibold mb-6">
                 {selectedDate
                   ? format(selectedDate, 'EEEE, MMM d')
                   : 'Select a Date'}
               </h3>
               {selectedDate && dateEnrollments.length > 0 ? (
                 <div className="space-y-3">
-                  {dateEnrollments.map((enrollment) => (
-                    <button
+                  {dateEnrollments.map((enrollment, index) => (
+                    <motion.button
                       key={enrollment._id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
                       onClick={() => handleEnrollmentClick(enrollment)}
-                      className="w-full text-left p-4 rounded-lg border bg-card hover:bg-accent/5 hover:border-primary/30 transition-all"
+                      className="w-full text-left p-5 rounded-2xl border-2 border-border/50 bg-muted/20 hover:bg-primary/5 hover:border-primary/30 transition-all"
                     >
-                      <div className="font-medium">{enrollment.childName}</div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="font-medium font-display text-base">{enrollment.childName}</div>
+                      <div className="text-sm text-muted-foreground mt-2">
                         {enrollment.parentName}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">
+                      <div className="text-xs text-muted-foreground mt-2 flex items-center gap-2">
                         {enrollment.campDates.find((d: any) =>
                           selectedDate
                             ? new Date(d.date).toDateString() ===
@@ -165,30 +203,40 @@ export default function Dashboard() {
                             : false
                         )?.endTime}
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               ) : selectedDate ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   No enrollments for this date
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Click on a calendar date to view enrollments
                 </p>
               )}
             </Card>
           </div>
-        </div>
+        </motion.div>
 
         {/* Search & Filters */}
-        <SearchFilters onSearch={handleSearch} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.6 }}
+        >
+          <SearchFilters onSearch={handleSearch} />
+        </motion.div>
 
         {/* Registrations Table */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.7 }}
+        >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">All Registrations</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-3xl font-display font-semibold">All Registrations</h2>
+            <p className="text-sm text-muted-foreground font-display">
               {registrations?.length || 0} total
             </p>
           </div>
@@ -198,7 +246,7 @@ export default function Dashboard() {
             onViewDetails={handleEnrollmentClick}
             loading={isLoading}
           />
-        </div>
+        </motion.div>
       </div>
     </DashboardLayout>
   );

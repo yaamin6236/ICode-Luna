@@ -1,6 +1,5 @@
 import { format } from 'date-fns';
 import {
-  X,
   User,
   Mail,
   Phone,
@@ -11,14 +10,18 @@ import {
   Hash,
   CheckCircle2,
   XCircle,
+  Copy,
+  Check,
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 interface Registration {
   _id: string;
   childName: string;
-  children?: string[];  // Array of all children
+  children?: string[];
   parentName: string;
   parentEmail: string;
   parentPhone?: string;
@@ -55,55 +58,73 @@ export function EnrollmentDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">
-                {enrollment.children && enrollment.children.length > 1
-                  ? `${enrollment.children.length} Children`
-                  : enrollment.childName}
-              </h2>
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    'status-badge',
-                    isEnrolled
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  )}
-                >
-                  {isEnrolled ? (
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                  ) : (
-                    <XCircle className="h-3 w-3 mr-1" />
-                  )}
-                  {isEnrolled ? 'Enrolled' : 'Cancelled'}
-                </span>
-                {enrollment.registrationId && (
-                  <span className="text-sm text-muted-foreground">
-                    #{enrollment.registrationId}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-display font-bold tracking-tight">
+            {enrollment.children && enrollment.children.length > 1
+              ? `${enrollment.children.length} Children`
+              : enrollment.childName}
+          </DialogTitle>
+          <DialogDescription>
+            Registration details for {isEnrolled ? 'enrolled' : 'cancelled'} student
+            {enrollment.registrationId && ` - ${enrollment.registrationId}`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Status badges below header */}
+        <div className="flex items-center gap-3 -mt-2">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-display border-2',
+              isEnrolled
+                ? 'bg-secondary/15 text-secondary border-secondary/30'
+                : 'bg-destructive/15 text-destructive border-destructive/30'
+            )}
+          >
+            {isEnrolled ? (
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            ) : (
+              <XCircle className="h-3.5 w-3.5" />
+            )}
+            {isEnrolled ? 'Enrolled' : 'Cancelled'}
+          </span>
+          {enrollment.registrationId && (
+            <span className="text-sm text-muted-foreground font-mono flex items-center gap-1">
+              <Hash className="h-3 w-3" />
+              {enrollment.registrationId}
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-8">
 
           {/* Children Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              {enrollment.children && enrollment.children.length > 1 ? 'Students' : 'Student Information'}
-            </h3>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-primary/10 rounded-xl">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="text-sm font-display font-semibold uppercase tracking-wider">
+                {enrollment.children && enrollment.children.length > 1 ? 'Students' : 'Student Information'}
+              </h3>
+            </div>
             {enrollment.children && enrollment.children.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {enrollment.children.map((child, idx) => (
-                  <div key={idx} className="p-4 rounded-lg border bg-card">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-primary" />
-                      <span className="font-medium">{child}</span>
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="p-4 rounded-2xl bg-muted/30 border-2 border-border/50 hover:border-primary/30 transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 bg-primary/10 rounded-lg">
+                        <User className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <span className="font-medium font-display">{child}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
@@ -119,9 +140,14 @@ export function EnrollmentDetailModal({
 
           {/* Parent/Guardian Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Parent/Guardian
-            </h3>
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-secondary/10 rounded-xl">
+                <User className="w-4 h-4 text-secondary" />
+              </div>
+              <h3 className="text-sm font-display font-semibold uppercase tracking-wider">
+                Parent/Guardian
+              </h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InfoItem
                 icon={<User className="h-4 w-4" />}
@@ -154,12 +180,16 @@ export function EnrollmentDetailModal({
 
           {/* Camp Schedule */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Camp Schedule
-            </h3>
-            <div className="space-y-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-accent/10 rounded-xl">
+                <Calendar className="w-4 h-4 text-accent" />
+              </div>
+              <h3 className="text-sm font-display font-semibold uppercase tracking-wider">
+                Camp Schedule
+              </h3>
+            </div>
+            <div className="space-y-3">
               {enrollment.campDates.map((campDate, index) => {
-                // Safely parse date
                 let dateDisplay = 'Invalid date';
                 try {
                   const dateValue = typeof campDate === 'string' ? campDate : campDate.date;
@@ -171,12 +201,15 @@ export function EnrollmentDetailModal({
                 }
 
                 return (
-                  <div
+                  <motion.div
                     key={index}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between p-5 rounded-2xl bg-muted/20 border-2 border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 text-sm font-medium">
+                      <div className="flex items-center gap-2.5 text-sm font-medium font-display">
                         <Calendar className="h-4 w-4 text-primary" />
                         {dateDisplay}
                       </div>
@@ -188,59 +221,66 @@ export function EnrollmentDetailModal({
                       )}
                     </div>
                     {typeof campDate === 'object' && campDate.hours && (
-                      <div className="text-sm font-semibold text-primary">
+                      <div className="text-sm font-bold font-mono text-primary bg-primary/10 px-3 py-1.5 rounded-full">
                         {campDate.hours}h
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </div>
 
           {/* Location & Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {enrollment.location && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Location
-                </h3>
-                <div className="flex items-start gap-2 p-4 rounded-lg border bg-card">
-                  <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                  <span className="text-sm">{enrollment.location}</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-primary/10 rounded-lg">
+                    <MapPin className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h3 className="text-xs font-display font-semibold uppercase tracking-wider text-muted-foreground">
+                    Location
+                  </h3>
+                </div>
+                <div className="flex items-start gap-3 p-4 rounded-2xl bg-muted/20 border-2 border-border/50">
+                  <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm leading-relaxed">{enrollment.location}</span>
                 </div>
               </div>
             )}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="space-y-3">
+              <h3 className="text-xs font-display font-semibold uppercase tracking-wider text-muted-foreground">
                 Summary
               </h3>
               <div className="space-y-2">
                 {enrollment.children && enrollment.children.length > 0 && (
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                    <span className="text-sm text-muted-foreground">Children</span>
-                    <span className="text-sm font-semibold">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/20 border-2 border-border/50">
+                    <span className="text-sm text-muted-foreground font-display">Children</span>
+                    <span className="text-sm font-bold font-mono tabular-nums">
                       {enrollment.children.length}
                     </span>
                   </div>
                 )}
-                <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                  <span className="text-sm text-muted-foreground">Total Days</span>
-                  <span className="text-sm font-semibold">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/20 border-2 border-border/50">
+                  <span className="text-sm text-muted-foreground font-display">Total Days</span>
+                  <span className="text-sm font-bold font-mono tabular-nums">
                     {enrollment.campDates.length}
                   </span>
                 </div>
                 {enrollment.totalCost && (
                   <div className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border",
-                    isEnrolled ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800"
+                    "flex items-center justify-between p-4 rounded-2xl border-2",
+                    isEnrolled 
+                      ? "bg-secondary/10 border-secondary/30" 
+                      : "bg-destructive/10 border-destructive/30"
                   )}>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium font-display">
                       {isEnrolled ? 'Revenue' : 'Lost Revenue'}
                     </span>
                     <span className={cn(
-                      "text-sm font-bold",
-                      isEnrolled ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                      "text-lg font-bold font-mono tabular-nums",
+                      isEnrolled ? "text-secondary" : "text-destructive"
                     )}>
                       ${enrollment.totalCost.toLocaleString()}
                     </span>
@@ -263,40 +303,36 @@ interface InfoItemProps {
 }
 
 function InfoItem({ icon, label, value, copyable }: InfoItemProps) {
+  const [copied, setCopied] = useState(false);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+    <div className="flex items-start gap-3 p-4 rounded-2xl bg-muted/20 border-2 border-border/50 hover:border-primary/30 transition-all group">
       <div className="text-primary mt-0.5">{icon}</div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-muted-foreground mb-1">{label}</div>
+        <div className="text-xs text-muted-foreground mb-1.5 font-display uppercase tracking-wider">{label}</div>
         <div className="text-sm font-medium truncate">{value}</div>
       </div>
       {copyable && (
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleCopy}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/10"
           title="Copy to clipboard"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-          </svg>
-        </button>
+          {copied ? (
+            <Check className="w-4 h-4 text-secondary" />
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
+        </motion.button>
       )}
     </div>
   );
 }
-

@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useCreateRegistration, useUpdateRegistration } from '@/hooks/useRegistrations';
+import { User, Users, CalendarDays, DollarSign } from 'lucide-react';
 
 interface RegistrationFormProps {
   open: boolean;
@@ -81,7 +82,7 @@ export default function RegistrationForm({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Edit Registration' : 'New Registration'}
@@ -93,12 +94,17 @@ export default function RegistrationForm({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Child Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Child Information</h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 bg-primary/10 rounded-lg">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="text-sm font-display font-semibold">Child Information</h3>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="childName">Child Name *</Label>
                 <Input
                   id="childName"
@@ -106,9 +112,10 @@ export default function RegistrationForm({
                   value={formData.childName}
                   onChange={handleChange}
                   required
+                  placeholder="Enter child's name"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="childAge">Age</Label>
                 <Input
                   id="childAge"
@@ -116,6 +123,7 @@ export default function RegistrationForm({
                   type="number"
                   value={formData.childAge}
                   onChange={handleChange}
+                  placeholder="8"
                 />
               </div>
             </div>
@@ -123,9 +131,14 @@ export default function RegistrationForm({
 
           {/* Parent Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Parent Information</h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 bg-secondary/10 rounded-lg">
+                <Users className="w-4 h-4 text-secondary" />
+              </div>
+              <h3 className="text-sm font-display font-semibold">Parent Information</h3>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="parentName">Parent Name *</Label>
                 <Input
                   id="parentName"
@@ -133,9 +146,10 @@ export default function RegistrationForm({
                   value={formData.parentName}
                   onChange={handleChange}
                   required
+                  placeholder="Enter parent's name"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="parentEmail">Email *</Label>
                 <Input
                   id="parentEmail"
@@ -144,10 +158,11 @@ export default function RegistrationForm({
                   value={formData.parentEmail}
                   onChange={handleChange}
                   required
+                  placeholder="parent@example.com"
                 />
               </div>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="parentPhone">Phone</Label>
               <Input
                 id="parentPhone"
@@ -155,25 +170,31 @@ export default function RegistrationForm({
                 type="tel"
                 value={formData.parentPhone}
                 onChange={handleChange}
+                placeholder="(555) 123-4567"
               />
             </div>
           </div>
 
           {/* Camp Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Camp Information</h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 bg-accent/10 rounded-lg">
+                <CalendarDays className="w-4 h-4 text-accent" />
+              </div>
+              <h3 className="text-sm font-display font-semibold">Camp Information</h3>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="campType">Camp Type</Label>
                 <Input
                   id="campType"
                   name="campType"
                   value={formData.campType}
                   onChange={handleChange}
-                  placeholder="e.g., Summer Camp"
+                  placeholder="e.g., Summer Coding Camp"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="campDates">Camp Date *</Label>
                 <Input
                   id="campDates"
@@ -189,9 +210,14 @@ export default function RegistrationForm({
 
           {/* Financial Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Financial Information</h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 bg-success/10 rounded-lg">
+                <DollarSign className="w-4 h-4 text-success" />
+              </div>
+              <h3 className="text-sm font-display font-semibold">Financial Information</h3>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="totalCost">Total Cost</Label>
                 <Input
                   id="totalCost"
@@ -201,9 +227,10 @@ export default function RegistrationForm({
                   value={formData.totalCost}
                   onChange={handleChange}
                   placeholder="0.00"
+                  className="font-mono"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="amountPaid">Amount Paid</Label>
                 <Input
                   id="amountPaid"
@@ -213,18 +240,19 @@ export default function RegistrationForm({
                   value={formData.amountPaid}
                   onChange={handleChange}
                   placeholder="0.00"
+                  className="font-mono"
                 />
               </div>
             </div>
           </div>
 
           {/* Status */}
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <select
               id="status"
               name="status"
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              className="w-full h-11 px-4 rounded-[10px] border-2 border-input bg-background text-sm font-display transition-all duration-300 focus:outline-none focus:border-primary/50 focus:shadow-glow-warm-sm hover:border-primary/30"
               value={formData.status}
               onChange={handleChange}
             >
@@ -233,20 +261,20 @@ export default function RegistrationForm({
             </select>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={onClose} size="lg">
               Cancel
             </Button>
             <Button
               type="submit"
-              className="gradient-primary"
+              size="lg"
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               {createMutation.isPending || updateMutation.isPending
                 ? 'Saving...'
                 : isEdit
-                ? 'Update'
-                : 'Create'}
+                ? 'Update Registration'
+                : 'Create Registration'}
             </Button>
           </DialogFooter>
         </form>
@@ -254,4 +282,3 @@ export default function RegistrationForm({
     </Dialog>
   );
 }
-

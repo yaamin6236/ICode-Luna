@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { LayoutDashboard, BarChart3, LogOut, Menu } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LayoutDashboard, BarChart3, LogOut, Menu, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
@@ -25,21 +25,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-organic-mesh">
       {/* Sidebar */}
       <motion.aside
-        initial={{ x: -300 }}
+        initial={false}
         animate={{ x: sidebarOpen ? 0 : -280 }}
-        className="fixed left-0 top-0 h-screen w-64 glass-effect border-r border-white/10 z-50"
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed left-0 top-0 bottom-0 w-72 bg-card border-r border-border/50 shadow-organic-xl z-50 texture-paper"
       >
-        <div className="flex flex-col h-full p-4">
-          {/* Logo */}
-          <div className="mb-8 mt-4">
-            <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-              ICode Portal
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Registration Management
+        <div className="flex flex-col h-full p-6">
+          {/* Logo with organic leaf motif */}
+          <div className="mb-8 mt-2">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 bg-primary/10 rounded-2xl">
+                <Leaf className="w-6 h-6 text-primary" />
+              </div>
+              <h1 className="text-2xl font-display font-bold text-gradient-organic">
+                ICode Portal
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground ml-[52px]">
+              Camp Management
             </p>
           </div>
 
@@ -50,16 +56,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               return (
                 <Link key={item.path} to={item.path}>
                   <motion.div
-                    whileHover={{ x: 5 }}
+                    whileHover={{ x: 4, scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200 ${
                       isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-accent text-muted-foreground'
+                        ? 'bg-primary text-primary-foreground shadow-organic'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium font-display">{item.label}</span>
                   </motion.div>
                 </Link>
               );
@@ -69,7 +75,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logout Button */}
           <Button
             variant="outline"
-            className="w-full flex items-center gap-2"
+            className="w-full"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
@@ -79,18 +85,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </motion.aside>
 
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <div
+        className={`transition-all duration-300 ${
+          sidebarOpen ? 'ml-72' : 'ml-0'
+        }`}
+      >
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 glass-effect border-b border-white/10">
-          <div className="flex items-center justify-between px-6 py-4">
+        <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border/50">
+          <div className="flex items-center justify-between px-8 py-5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="rounded-full"
             >
               <Menu className="w-5 h-5" />
             </Button>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground font-display">
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -102,11 +113,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.34, 1.56, 0.64, 1],
+            }}
           >
             {children}
           </motion.div>
@@ -115,4 +129,3 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 }
-

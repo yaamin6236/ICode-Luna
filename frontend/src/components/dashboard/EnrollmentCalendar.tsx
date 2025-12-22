@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Users } from 'luci
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface Registration {
   _id: string;
@@ -59,13 +60,15 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
+    <Card className="p-8">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl">
+              <CalendarIcon className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="text-xl font-display font-semibold">
               {format(currentMonth, 'MMMM yyyy')}
             </h2>
           </div>
@@ -74,7 +77,7 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
               variant="outline"
               size="icon"
               onClick={previousMonth}
-              className="h-8 w-8"
+              className="h-10 w-10 rounded-xl"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -82,7 +85,7 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
               variant="outline"
               size="icon"
               onClick={nextMonth}
-              className="h-8 w-8"
+              className="h-10 w-10 rounded-xl"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -90,12 +93,12 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-3">
           {/* Week day headers */}
           {weekDays.map(day => (
             <div
               key={day}
-              className="text-center text-sm font-medium text-muted-foreground py-2"
+              className="text-center text-xs font-display font-semibold uppercase tracking-wider text-muted-foreground py-2"
             >
               {day}
             </div>
@@ -107,60 +110,67 @@ export function EnrollmentCalendar({ registrations, onDateClick }: EnrollmentCal
           ))}
 
           {/* Calendar days */}
-          {daysInMonth.map(date => {
+          {daysInMonth.map((date, index) => {
             const enrollments = getEnrollmentsForDate(date);
             const hasEnrollments = enrollments.length > 0;
             const isToday = isSameDay(date, new Date());
 
             return (
-              <button
+              <motion.button
                 key={date.toISOString()}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2, delay: index * 0.01 }}
                 onClick={() => hasEnrollments && onDateClick(date, enrollments)}
+                whileHover={hasEnrollments ? { scale: 1.05, y: -2 } : {}}
+                whileTap={hasEnrollments ? { scale: 0.95 } : {}}
                 className={cn(
-                  "aspect-square p-2 rounded-lg border-2 transition-all relative group",
-                  "flex flex-col items-center justify-center",
+                  "aspect-square p-3 rounded-2xl transition-all duration-200 relative group",
+                  "flex flex-col items-center justify-center shadow-organic-sm",
                   hasEnrollments
-                    ? "border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary cursor-pointer"
-                    : "border-transparent hover:border-border",
-                  isToday && "ring-2 ring-primary ring-offset-2"
+                    ? "bg-secondary/10 border-2 border-secondary/30 hover:border-secondary hover:shadow-organic cursor-pointer"
+                    : "bg-muted/30 border-2 border-transparent hover:border-border/50",
+                  isToday && "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-glow-warm-sm"
                 )}
                 disabled={!hasEnrollments}
               >
                 <span className={cn(
-                  "text-sm font-medium",
-                  isToday && "text-primary font-bold"
+                  "text-sm font-display font-medium mb-1",
+                  isToday && "text-primary font-bold",
+                  hasEnrollments && !isToday && "text-secondary font-semibold"
                 )}>
                   {format(date, 'd')}
                 </span>
                 {hasEnrollments && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <Users className="h-3 w-3 text-primary" />
-                    <span className="text-xs font-semibold text-primary">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.01 + 0.1, type: "spring" }}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20"
+                  >
+                    <Users className="h-3 w-3 text-secondary" />
+                    <span className="text-xs font-bold text-secondary tabular-nums">
                       {enrollments.length}
                     </span>
-                  </div>
+                  </motion.div>
                 )}
-                {hasEnrollments && (
-                  <div className="absolute inset-0 rounded-lg bg-primary/0 group-hover:bg-primary/5 transition-colors" />
-                )}
-              </button>
+              </motion.button>
             );
           })}
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 pt-4 border-t text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-primary" />
-            <span>Has Enrollments</span>
+        <div className="flex items-center gap-6 pt-4 border-t border-border/50">
+          <div className="flex items-center gap-2.5">
+            <div className="h-4 w-4 rounded-full bg-secondary shadow-organic-sm" />
+            <span className="text-sm text-muted-foreground">Has Enrollments</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full ring-2 ring-primary" />
-            <span>Today</span>
+          <div className="flex items-center gap-2.5">
+            <div className="h-4 w-4 rounded-full ring-2 ring-primary shadow-glow-warm-sm" />
+            <span className="text-sm text-muted-foreground">Today</span>
           </div>
         </div>
       </div>
     </Card>
   );
 }
-
