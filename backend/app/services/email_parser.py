@@ -44,9 +44,34 @@ class EmailParser:
         
         return RegistrationStatus.ENROLLED
     
+    def extract_all_children(self, email_text: str) -> list:
+        """Extract all children names from the email"""
+        children = []
+        
+        # Try simple format first: "Care Recipient(s):\nChild Name\nGender..."
+        simple_pattern = r"Care Recipient\(s\):\s*\n([A-Za-z\s\-\.]+?)(?:\n|$)"
+        simple_matches = re.findall(simple_pattern, email_text, re.MULTILINE)
+        children.extend([name.strip() for name in simple_matches if name.strip()])
+        
+        # Try detailed format: "Care Recipient Details:\nName: Child Name"
+        detailed_pattern = r"Care Recipient Details:.*?Name:\s*([A-Za-z\s\-\.]+?)(?:\n|$)"
+        detailed_matches = re.findall(detailed_pattern, email_text, re.MULTILINE | re.DOTALL)
+        children.extend([name.strip() for name in detailed_matches if name.strip()])
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_children = []
+        for child in children:
+            if child not in seen and child not in ['Care Recipient Details', 'Details']:
+                seen.add(child)
+                unique_children.append(child)
+        
+        return unique_children
+    
     def parse_email(self, email_text: str, email_subject: str = "", email_date: Optional[datetime] = None) -> Dict:
         """
         Parse Bright Horizons email and extract registration data.
+        Returns ONE registration document with all children.
         
         Args:
             email_text: The body of the email
@@ -54,26 +79,16 @@ class EmailParser:
             email_date: When the email was received
             
         Returns:
-            Dictionary with extracted registration data
+            Dictionary with extracted registration data (single document with multiple children)
         """
         status = self.determine_status(email_text, email_subject)
         
-        # Extract fields
+        # Extract common fields
         care_request = self.extract_field(email_text, "care_request_number")
-        
-        # Try both child name formats
-        child_name = self.extract_field(email_text, "child_name_simple")
-        if not child_name:
-            child_name = self.extract_field(email_text, "child_name_detailed")
-        
-        child_age_str = self.extract_field(email_text, "child_age")
-        child_age = int(child_age_str) if child_age_str and child_age_str.isdigit() else None
-        
         parent_name = self.extract_field(email_text, "parent_name")
         parent_email = self.extract_field(email_text, "parent_email")
         parent_phone_raw = self.extract_field(email_text, "parent_phone")
         parent_phone = parse_phone(parent_phone_raw) if parent_phone_raw else None
-        
         employer = self.extract_field(email_text, "employer")
         location = self.extract_field(email_text, "location")
         
@@ -81,19 +96,33 @@ class EmailParser:
         camp_dates = extract_all_dates(email_text)
         enrollment_date = camp_dates[0] if camp_dates else (email_date or datetime.utcnow())
         
-        # Calculate cost based on hours - assume 8 hours if not specified
-        total_hours = extract_hours_from_dates(email_text)
-        if total_hours == 0 and camp_dates:
-            # If no hours found but we have dates, assume 8 hours per day
-            total_hours = len(camp_dates) * 8
+        # Extract ALL children
+        children = self.extract_all_children(email_text)
         
-        total_cost = total_hours * 50 if total_hours > 0 else None  # $50/hour rate
+        # If no children found, try the old single-child method as fallback
+        if not children:
+            child_name = self.extract_field(email_text, "child_name_simple")
+            if not child_name:
+                child_name = self.extract_field(email_text, "child_name_detailed")
+            if child_name:
+                children = [child_name]
+        
+        child_age_str = self.extract_field(email_text, "child_age")
+        child_age = int(child_age_str) if child_age_str and child_age_str.isdigit() else None
+        
+        # Calculate revenue: $100 per day per child
+        num_children = len(children) if children else 1
+        num_days = len(camp_dates) if camp_dates else 1
+        total_cost = num_children * num_days * 100  # $100 per day per child
+        
+        registration_id = care_request or f"BH-{int(datetime.utcnow().timestamp())}"
         
         result = {
             "status": status,
             "enrollmentDate": enrollment_date,
             "cancellationDate": datetime.utcnow() if status == RegistrationStatus.CANCELLED else None,
-            "childName": child_name or "Unknown",
+            "children": children,  # Array of all children
+            "childName": children[0] if children else "Unknown",  # Primary child for backward compatibility
             "childAge": child_age,
             "parentName": parent_name or "Unknown",
             "parentEmail": parent_email or "noemail@example.com",
@@ -102,7 +131,9 @@ class EmailParser:
             "campType": f"Back-Up Care - {employer}" if employer else "Back-Up Care",
             "totalCost": total_cost,
             "amountPaid": total_cost if status == RegistrationStatus.ENROLLED else 0,
-            "registrationId": care_request or f"BH-{int(datetime.utcnow().timestamp())}",
+            "registrationId": registration_id,
+            "employer": employer,
+            "location": location,
         }
         
         return result

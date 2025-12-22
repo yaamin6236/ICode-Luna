@@ -1,68 +1,75 @@
-import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface KPICardProps {
   title: string;
   value: string | number;
+  subtitle?: string;
   icon: LucideIcon;
   trend?: {
     value: number;
-    isPositive: boolean;
+    label: string;
   };
-  format?: 'currency' | 'number';
-  loading?: boolean;
+  variant?: 'default' | 'primary' | 'success' | 'warning';
 }
 
-export default function KPICard({
+export function KPICard({
   title,
   value,
+  subtitle,
   icon: Icon,
   trend,
-  format = 'number',
-  loading = false,
+  variant = 'default',
 }: KPICardProps) {
-  const formattedValue =
-    format === 'currency' && typeof value === 'number'
-      ? formatCurrency(value)
-      : value;
+  const variantStyles = {
+    default: 'bg-card border-border',
+    primary: 'bg-primary/5 border-primary/20',
+    success: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
+    warning: 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800',
+  };
+
+  const iconStyles = {
+    default: 'text-primary',
+    primary: 'text-primary',
+    success: 'text-green-600 dark:text-green-400',
+    warning: 'text-amber-600 dark:text-amber-400',
+  };
 
   return (
-    <motion.div
-      whileHover={{ y: -5, scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 300 }}
-      className="hover-lift"
-    >
-      <Card className="glass-effect border-white/20">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Icon className="w-4 h-4 text-primary" />
+    <Card className={cn('p-6 hover-lift', variantStyles[variant])}>
+      <div className="flex items-start justify-between">
+        <div className="space-y-2 flex-1">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="space-y-1">
+            <p className="text-3xl font-bold tracking-tight">{value}</p>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
           </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-          ) : (
-            <>
-              <div className="text-3xl font-bold">{formattedValue}</div>
-              {trend && (
-                <div
-                  className={`text-xs mt-2 ${
-                    trend.isPositive ? 'text-green-500' : 'text-red-500'
-                  }`}
-                >
-                  {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
-                </div>
-              )}
-            </>
+          {trend && (
+            <div className="flex items-center gap-1 pt-2">
+              <span
+                className={cn(
+                  'text-xs font-medium',
+                  trend.value > 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : trend.value < 0
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-muted-foreground'
+                )}
+              >
+                {trend.value > 0 && '+'}
+                {trend.value}%
+              </span>
+              <span className="text-xs text-muted-foreground">{trend.label}</span>
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+        <div className={cn('p-3 rounded-xl bg-background/50', iconStyles[variant])}>
+          <Icon className="h-6 w-6" />
+        </div>
+      </div>
+    </Card>
   );
 }
-

@@ -32,6 +32,7 @@ async def process_all_emails():
     print(f"[INFO] Found {len(message_ids)} emails to process\n")
     
     processed = 0
+    total_children = 0
     failed = 0
     skipped = 0
     
@@ -42,7 +43,9 @@ async def process_all_emails():
             result = await pubsub_handler.process_email(message_id)
             if result:
                 processed += 1
-                print(f"  [OK] Processed successfully")
+                num_children = len(result.get('children', []))
+                total_children += num_children
+                print(f"  [OK] Processed ({num_children} {'child' if num_children == 1 else 'children'})")
             else:
                 skipped += 1
                 print(f"  [SKIP] Skipped (already processed or failed parsing)")
@@ -51,8 +54,9 @@ async def process_all_emails():
             print(f"  [ERROR] Error: {e}")
     
     print(f"\n=== Summary ===")
-    print(f"Total: {len(message_ids)}")
-    print(f"Processed: {processed}")
+    print(f"Total Emails: {len(message_ids)}")
+    print(f"Emails Processed: {processed}")
+    print(f"Total Children Registered: {total_children}")
     print(f"Skipped: {skipped}")
     print(f"Failed: {failed}")
     

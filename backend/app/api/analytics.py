@@ -201,15 +201,25 @@ async def get_dashboard_summary(current_user = Depends(get_current_user)):
         "status": RegistrationStatus.ENROLLED.value
     })
     
-    # Total revenue (last 30 days)
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-    recent_registrations = await db.registrations.find({
-        "status": RegistrationStatus.ENROLLED.value,
-        "enrollmentDate": {"$gte": thirty_days_ago}
-    }).to_list(length=10000)
+    # All-time revenue from enrolled
+    all_enrolled = await db.registrations.find({
+        "status": RegistrationStatus.ENROLLED.value
+    }).to_list(length=100000)
     
-    total_revenue = sum(float(reg.get("totalCost", 0) or 0) for reg in recent_registrations)
-    total_paid = sum(float(reg.get("amountPaid", 0) or 0) for reg in recent_registrations)
+    enrolled_revenue = sum(float(reg.get("totalCost", 0) or 0) for reg in all_enrolled)
+    
+    # All-time lost revenue from cancellations
+    all_cancelled = await db.registrations.find({
+        "status": RegistrationStatus.CANCELLED.value
+    }).to_list(length=100000)
+    
+    cancelled_revenue = sum(float(reg.get("totalCost", 0) or 0) for reg in all_cancelled)
+    
+    # Net revenue = enrolled - cancelled
+    net_revenue = enrolled_revenue - cancelled_revenue
+    
+    # Total paid across all enrolled
+    total_paid = sum(float(reg.get("amountPaid", 0) or 0) for reg in all_enrolled)
     
     # Upcoming camps (next 7 days)
     today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -225,17 +235,21 @@ async def get_dashboard_summary(current_user = Depends(get_current_user)):
         }
     }).to_list(length=10000)
     
-    # Recent cancellations (last 7 days)
+    # Recent cancellations (last 30 days)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     recent_cancellations = await db.registrations.count_documents({
         "status": RegistrationStatus.CANCELLED.value,
-        "cancellationDate": {"$gte": datetime.utcnow() - timedelta(days=7)}
+        "cancellationDate": {"$gte": thirty_days_ago}
     })
     
     return {
         "totalEnrolled": total_enrolled,
-        "totalRevenue30Days": total_revenue,
-        "totalPaid30Days": total_paid,
-        "outstandingBalance": total_revenue - total_paid,
+        "totalEnrolledRevenue": enrolled_revenue,
+        "totalCancelledRevenue": cancelled_revenue,
+        "netRevenue": net_revenue,
+        "totalRevenue30Days": net_revenue,  # Keep for backward compatibility
+        "totalPaid": total_paid,
+        "outstandingBalance": enrolled_revenue - total_paid,
         "upcomingCampsCount": len(upcoming_registrations),
         "recentCancellations": recent_cancellations
     }

@@ -61,6 +61,7 @@ class PubSubHandler:
     async def process_email(self, message_id: str) -> Optional[Dict]:
         """
         Fetch and process a single email by message ID.
+        Creates ONE registration document with all children.
         
         Args:
             message_id: Gmail message ID
@@ -83,7 +84,7 @@ class PubSubHandler:
                 print(f"[ERROR] Failed to fetch email {message_id}")
                 return None
             
-            # Parse email
+            # Parse email - returns single registration with all children
             parsed_data = parse_bright_horizon_email(
                 email_text=email_data['body'],
                 email_subject=email_data['subject'],
@@ -96,17 +97,21 @@ class PubSubHandler:
                 await self._store_unparsed_email(message_id, email_data)
                 return None
             
-            # Create registration document
+            # Create registration document with all children
+            num_children = len(parsed_data.get('children', []))
             registration_doc = {
                 'registrationId': f"BH-{message_id[:8]}-{int(datetime.utcnow().timestamp())}",
                 'status': parsed_data['status'].value,
                 'enrollmentDate': parsed_data['enrollmentDate'],
                 'cancellationDate': parsed_data.get('cancellationDate'),
-                'childName': parsed_data['childName'],
+                'children': parsed_data.get('children', []),  # Array of all children names
+                'childName': parsed_data['childName'],  # Primary child name
                 'childAge': parsed_data.get('childAge'),
                 'parentName': parsed_data['parentName'],
                 'parentEmail': parsed_data['parentEmail'],
                 'parentPhone': parsed_data.get('parentPhone'),
+                'employer': parsed_data.get('employer'),
+                'location': parsed_data.get('location'),
                 'campDates': parsed_data['campDates'],
                 'campType': parsed_data.get('campType'),
                 'totalCost': parsed_data.get('totalCost'),
@@ -124,7 +129,8 @@ class PubSubHandler:
             result = await db.registrations.insert_one(registration_doc)
             registration_doc['_id'] = str(result.inserted_id)
             
-            print(f"[OK] Successfully processed email {message_id} -> {registration_doc['registrationId']}")
+            child_info = f"{num_children} children" if num_children > 1 else parsed_data['childName']
+            print(f"[OK] Successfully processed email {message_id} -> {registration_doc['registrationId']} ({child_info})")
             
             return registration_doc
         
