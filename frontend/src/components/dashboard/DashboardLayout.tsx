@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { LayoutDashboard, BarChart3, LogOut, Menu, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logout Button */}
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full flex items-center justify-center gap-2"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />

@@ -58,7 +58,7 @@ export function EnrollmentDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle className="text-3xl font-display font-bold tracking-tight">
             {enrollment.children && enrollment.children.length > 1
@@ -72,7 +72,7 @@ export function EnrollmentDetailModal({
         </DialogHeader>
 
         {/* Status badges below header */}
-        <div className="flex items-center gap-3 -mt-2">
+        <div className="flex items-center gap-3">
           <span
             className={cn(
               'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-display border-2',
@@ -96,7 +96,7 @@ export function EnrollmentDetailModal({
           )}
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-6 mt-4">
 
           {/* Children Information */}
           <div className="space-y-4">
