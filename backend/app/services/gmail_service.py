@@ -208,23 +208,45 @@ class GmailService:
     def list_messages(self, label_name: Optional[str] = None, max_results: int = 10000) -> List[str]:
         """
         List message IDs from a label.
+        Uses pagination to get all messages.
         
         Returns:
             List of message IDs
         """
         try:
             service = self.get_service()
-            query_params = {'userId': 'me', 'maxResults': max_results}
+            all_messages = []
+            page_token = None
             
+            label_id = None
             if label_name:
                 label_id = self.get_label_id(label_name)
+                if not label_id:
+                    print(f"[WARN] Label '{label_name}' not found")
+                    return []
+            
+            # Paginate through all results
+            while True:
+                query_params = {'userId': 'me', 'maxResults': min(500, max_results - len(all_messages))}
+                
                 if label_id:
                     query_params['labelIds'] = [label_id]
+                
+                if page_token:
+                    query_params['pageToken'] = page_token
+                
+                results = service.users().messages().list(**query_params).execute()
+                messages = results.get('messages', [])
+                all_messages.extend(messages)
+                
+                page_token = results.get('nextPageToken')
+                
+                # Stop if no more pages or reached max_results
+                if not page_token or len(all_messages) >= max_results:
+                    break
             
-            results = service.users().messages().list(**query_params).execute()
-            messages = results.get('messages', [])
-            
-            return [msg['id'] for msg in messages]
+            print(f"[INFO] Retrieved {len(all_messages)} message IDs from Gmail API")
+            return [msg['id'] for msg in all_messages[:max_results]]
         
         except HttpError as error:
             print(f"Error listing messages: {error}")

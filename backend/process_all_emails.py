@@ -15,7 +15,13 @@ async def process_all_emails():
     """Process all emails from the configured Gmail label"""
     await connect_to_mongodb()
     
-    print(f"Fetching emails from label: {settings.gmail_label_name}")
+    print(f"\n=== EMAIL IMPORT CONFIGURATION ===")
+    print(f"Gmail Label: {settings.gmail_label_name}")
+    print(f"MongoDB Database: {settings.mongodb_db_name}")
+    print(f"Max Results: 10000 (will paginate)")
+    print(f"==================================\n")
+    
+    print(f"[INFO] Fetching emails from label: {settings.gmail_label_name}")
     
     # Get all message IDs from the label
     message_ids = gmail_service.list_messages(
@@ -23,7 +29,7 @@ async def process_all_emails():
         max_results=10000  # Process all emails
     )
     
-    print(f"Found {len(message_ids)} emails to process")
+    print(f"[INFO] Found {len(message_ids)} emails to process\n")
     
     processed = 0
     failed = 0

@@ -12,19 +12,20 @@ PATTERNS = {
     # Care Request
     "care_request_number": r"Care Request Number:\s*([A-Z0-9\-]+)",
     
-    # Child/Recipient information (two formats: cancellation and authorization)
-    # Format 1: Cancellation - "Care Recipient(s):\nElizabeth Ellis\nFemale, 9 Years"
-    "child_name_simple": r"Care Recipient\(s\):\s*\n([A-Za-z\s]+)\n",
-    # Format 2: Authorization - "Name: Saahithi Pola"
-    "child_name_detailed": r"(?:Care Recipient.*?)?Name:\s*([A-Za-z\s]+)",
+    # Child/Recipient information (multiple formats)
+    # Format 1: "Care Recipient(s):\nValentine Webber-Nechifor" (can have hyphens)
+    "child_name_simple": r"Care Recipient\(s\):\s*\n([A-Za-z\s\-\.]+?)(?:\n|$)",
+    # Format 2: "Care Recipient Details:\nName: Saahithi Pola"
+    "child_name_detailed": r"Care Recipient Details:.*?Name:\s*([A-Za-z\s\-\.]+?)(?:\n|$)",
     
     "child_gender": r"(Male|Female),",
     "child_dob": r"DOB:\s*([A-Za-z]+\s+\d+,\s*\d{4})",
     "child_age": r"(\d+)\s*Years?\s*\d*\s*months?",
     
     # Parent/Employee information
-    "parent_name": r"Scheduled Care for Employee:\s*([A-Za-z\s]+?)(?:\(|$)",
-    "parent_email": r"(?:Email:|kapola@|kalyani\.pola@)([\w\.-]+@[\w\.-]+\.\w+)",
+    # Handles: "Employee: Name (Employer)" OR "Employee:\nName" OR "Employee:  Name( Employer)"
+    "parent_name": r"Scheduled Care for Employee:\s*\n?([A-Za-z\s\-\.]+?)(?:\(|\n|$|Employer:)",
+    "parent_email": r"Email:\s*([\w\.\-]+@[\w\.\-]+\.\w+)",
     "parent_phone": r"(?:Home Phone|Mobile Phone):\s*([\d]+)",
     "employer": r"Employer:\s*([A-Za-z\s]+)",
     
