@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     gmail_token_path: str = "token.json"
     gmail_label_name: str = "BrightHorizon"
     
+    # Gmail API Credentials (Base64 encoded JSON - for cloud deployment)
+    gmail_credentials_base64: str = ""
+    gmail_token_base64: str = ""
+    
     # Google Cloud Pub/Sub
     pubsub_verification_token: str = ""
     

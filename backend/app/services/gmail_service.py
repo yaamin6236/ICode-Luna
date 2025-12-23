@@ -5,6 +5,7 @@ Handles authentication and email retrieval.
 
 import os
 import base64
+import json
 from typing import Optional, Dict, List
 from datetime import datetime
 from google.oauth2.credentials import Credentials
@@ -33,38 +34,90 @@ class GmailService:
         self.credentials = None
     
     def authenticate(self):
-        """Authenticate with Gmail API"""
+        """Authenticate with Gmail API - supports both env vars and files"""
         creds = None
-        token_path = settings.gmail_token_path
-        credentials_path = settings.gmail_credentials_path
         
-        # Load existing token
-        if os.path.exists(token_path):
-            with open(token_path, 'rb') as token:
-                creds = pickle.load(token)
+        # Method 1: Try loading from base64 environment variables (for cloud deployment)
+        if settings.gmail_token_base64:
+            try:
+                print("[INFO] Loading Gmail token from environment variable")
+                token_json = base64.b64decode(settings.gmail_token_base64).decode('utf-8')
+                token_data = json.loads(token_json)
+                
+                creds = Credentials(
+                    token=token_data.get('token'),
+                    refresh_token=token_data.get('refresh_token'),
+                    token_uri=token_data.get('token_uri'),
+                    client_id=token_data.get('client_id'),
+                    client_secret=token_data.get('client_secret'),
+                    scopes=token_data.get('scopes', SCOPES)
+                )
+                print("[OK] Gmail token loaded from environment")
+            except Exception as e:
+                print(f"[WARN] Failed to load token from environment: {e}")
+                creds = None
         
-        # Refresh or get new credentials
+        # Method 2: Try loading from file (for local development)
+        if not creds:
+            token_path = settings.gmail_token_path
+            if os.path.exists(token_path):
+                print(f"[INFO] Loading Gmail token from file: {token_path}")
+                with open(token_path, 'rb') as token:
+                    creds = pickle.load(token)
+                print("[OK] Gmail token loaded from file")
+        
+        # Refresh or get new credentials if needed
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
+                print("[INFO] Refreshing expired Gmail token")
                 creds.refresh(Request())
+                print("[OK] Gmail token refreshed")
             else:
-                if not os.path.exists(credentials_path):
+                # Try to get new credentials from credentials.json
+                credentials_path = settings.gmail_credentials_path
+                credentials_data = None
+                
+                # Try environment variable first
+                if settings.gmail_credentials_base64:
+                    try:
+                        print("[INFO] Loading Gmail credentials from environment variable")
+                        creds_json = base64.b64decode(settings.gmail_credentials_base64).decode('utf-8')
+                        credentials_data = json.loads(creds_json)
+                        print("[OK] Gmail credentials loaded from environment")
+                    except Exception as e:
+                        print(f"[WARN] Failed to load credentials from environment: {e}")
+                
+                # Fall back to file
+                if not credentials_data and os.path.exists(credentials_path):
+                    print(f"[INFO] Loading Gmail credentials from file: {credentials_path}")
+                    with open(credentials_path, 'r') as f:
+                        credentials_data = json.load(f)
+                    print("[OK] Gmail credentials loaded from file")
+                
+                if not credentials_data:
                     raise FileNotFoundError(
-                        f"Gmail credentials file not found: {credentials_path}\n"
-                        "Please download credentials.json from Google Cloud Console."
+                        f"Gmail credentials not found in environment variables or file: {credentials_path}\n"
+                        "Please set GMAIL_CREDENTIALS_BASE64 or download credentials.json from Google Cloud Console."
                     )
                 
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    credentials_path, SCOPES
+                # Create flow and get credentials
+                flow = InstalledAppFlow.from_client_config(
+                    credentials_data, SCOPES
                 )
                 creds = flow.run_local_server(port=0)
-            
-            # Save credentials
-            with open(token_path, 'wb') as token:
-                pickle.dump(creds, token)
+                
+                # Save to file if possible
+                token_path = settings.gmail_token_path
+                try:
+                    with open(token_path, 'wb') as token:
+                        pickle.dump(creds, token)
+                    print(f"[OK] Gmail token saved to {token_path}")
+                except Exception as e:
+                    print(f"[WARN] Could not save token to file: {e}")
         
         self.credentials = creds
         self.service = build('gmail', 'v1', credentials=creds)
+        print("[OK] Gmail service authenticated and ready")
         return self.service
     
     def get_service(self):

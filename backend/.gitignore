@@ -30,6 +30,8 @@ wheels/
 # Google API credentials
 credentials.json
 token.json
+credentials_base64.txt
+token_base64.txt
 *.json
 
 # IDE
