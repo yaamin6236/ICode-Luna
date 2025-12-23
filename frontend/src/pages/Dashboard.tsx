@@ -8,7 +8,6 @@ import RegistrationTable from '@/components/dashboard/RegistrationTable';
 import SearchFilters from '@/components/dashboard/SearchFilters';
 import { EnrollmentCalendar } from '@/components/dashboard/EnrollmentCalendar';
 import { EnrollmentDetailModal } from '@/components/dashboard/EnrollmentDetailModal';
-import RegistrationForm from '@/components/forms/RegistrationForm';
 import { Button } from '@/components/ui/button';
 import { useRegistrations } from '@/hooks/useRegistrations';
 import { registrationAPI, setClerkTokenGetter } from '@/lib/api';
@@ -20,8 +19,7 @@ export default function Dashboard() {
   useEffect(() => {
     setClerkTokenGetter(getToken);
   }, [getToken]);
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingRegistration, setEditingRegistration] = useState<any>(null);
+  
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date()); // Auto-select today
   const [dateRegistrations, setDateRegistrations] = useState<any[]>([]);
   const [selectedEnrollment, setSelectedEnrollment] = useState<any>(null);
@@ -119,16 +117,6 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-  const handleEdit = (registration: any) => {
-    setEditingRegistration(registration);
-    setFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setFormOpen(false);
-    setEditingRegistration(null);
-  };
-
   const handleDateClick = (date: Date, _enrollments: any[]) => {
     setSelectedDate(date);
     setLocalSearchTerm('');
@@ -162,13 +150,6 @@ export default function Dashboard() {
             Manage camp registrations and track enrollment
           </p>
         </motion.div>
-
-        {/* Registration Form Modal */}
-        <RegistrationForm
-          open={formOpen}
-          onClose={handleCloseForm}
-          registration={editingRegistration}
-        />
 
         {/* Enrollment Detail Modal */}
         <EnrollmentDetailModal
@@ -282,7 +263,6 @@ export default function Dashboard() {
               <div className="flex-1 overflow-y-auto min-h-0">
                 <RegistrationTable
                   registrations={paginatedRegistrations || []}
-                  onEdit={handleEdit}
                   onViewDetails={handleEnrollmentClick}
                   loading={isLoadingDateData}
                 />
