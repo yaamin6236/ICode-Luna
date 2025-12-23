@@ -1,4 +1,4 @@
-import { Eye, Mail, Phone, Calendar, MapPin, Hash } from 'lucide-react';
+import { Eye, Mail, Phone, Calendar, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -28,14 +28,12 @@ interface Registration {
 
 interface RegistrationTableProps {
   registrations: Registration[];
-  onEdit?: (registration: Registration) => void;
   onViewDetails: (registration: Registration) => void;
   loading?: boolean;
 }
 
 export default function RegistrationTable({
   registrations,
-  onEdit,
   onViewDetails,
   loading = false,
 }: RegistrationTableProps) {
