@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { authAPI } from '@/lib/api';
+import { useSignIn, useAuth } from '@clerk/clerk-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,30 +10,66 @@ import { useToast } from '@/components/ui/use-toast';
 import { Leaf, Sparkles, Lock, Mail } from 'lucide-react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { signIn, setActive } = useSignIn();
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Redirect if already signed in
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate('/');
+    }
+  }, [isSignedIn, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!signIn) {
+      toast({
+        title: 'Error',
+        description: 'Authentication system not ready. Please refresh.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await authAPI.login(username, password);
-      localStorage.setItem('access_token', response.access_token);
-      toast({
-        title: 'Welcome back!',
-        description: 'Login successful',
+      const result = await signIn.create({
+        identifier: email,
+        password: password,
       });
-      navigate('/');
+
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
+        toast({
+          title: 'Welcome back!',
+          description: 'Login successful',
+        });
+        navigate('/');
+      }
     } catch (error: any) {
-      toast({
-        title: 'Login failed',
-        description: error.response?.data?.detail || 'Invalid username or password',
-        variant: 'destructive',
-      });
+      console.error('Login error:', error);
+      
+      // Handle "already signed in" error
+      if (error.errors?.[0]?.message?.includes('already signed in')) {
+        toast({
+          title: 'Already signed in',
+          description: 'Redirecting to dashboard...',
+        });
+        setTimeout(() => navigate('/'), 1000);
+      } else {
+        toast({
+          title: 'Login failed',
+          description: error.errors?.[0]?.message || 'Invalid email or password',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -150,16 +186,16 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      id="username"
-                      type="text"
-                      placeholder="admin"
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
                       className="pl-11"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -191,7 +227,20 @@ export default function Login() {
                 </Button>
               </form>
 
-              {/* Demo Credentials */}
+              {/* Sign Up Link */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{' '}
+                  <Link 
+                    to="/sign-up" 
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+
+              {/* Info */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -203,21 +252,10 @@ export default function Login() {
                     <Sparkles className="w-4 h-4 text-accent" />
                   </div>
                   <div className="space-y-2 flex-1">
-                    <p className="text-sm font-display font-semibold">Demo Access</p>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        <span className="font-medium">Username:</span>{' '}
-                        <code className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono">
-                          admin
-                        </code>
-                      </p>
-                      <p>
-                        <span className="font-medium">Password:</span>{' '}
-                        <code className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono">
-                          admin123
-                        </code>
-                      </p>
-                    </div>
+                    <p className="text-sm font-display font-semibold">Secured by Clerk</p>
+                    <p className="text-sm text-muted-foreground">
+                      Your authentication is managed securely by Clerk with enterprise-grade security.
+                    </p>
                   </div>
                 </div>
               </motion.div>

@@ -1,14 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, XCircle, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/clerk-react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { KPICard } from '@/components/dashboard/KPICard';
 import RevenueChart from '@/components/dashboard/RevenueChart';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useRevenue, useDashboardSummary } from '@/hooks/useAnalytics';
+import { setClerkTokenGetter } from '@/lib/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Analytics() {
+  const { getToken } = useAuth();
+  
+  // Set up Clerk token getter for API requests
+  useEffect(() => {
+    setClerkTokenGetter(getToken);
+  }, [getToken]);
   const [dateRange] = useState({
     start_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end_date: new Date().toISOString().split('T')[0],

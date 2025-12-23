@@ -7,10 +7,13 @@ class Settings(BaseSettings):
     mongodb_url: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "icode_portal"
     
-    # JWT Configuration
-    secret_key: str
+    # JWT Configuration (legacy - keeping for compatibility)
+    secret_key: str = "fallback-secret-key"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 1440
+    
+    # Clerk Authentication
+    clerk_secret_key: str = ""
     
     # Gmail API Configuration
     gmail_credentials_path: str = "credentials.json"
@@ -18,7 +21,7 @@ class Settings(BaseSettings):
     gmail_label_name: str = "BrightHorizon"
     
     # Google Cloud Pub/Sub
-    pubsub_verification_token: str
+    pubsub_verification_token: str = ""
     
     # Application Configuration
     environment: str = "development"

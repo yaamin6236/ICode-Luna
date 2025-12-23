@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/clerk-react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import RegistrationTable from '@/components/dashboard/RegistrationTable';
 import SearchFilters from '@/components/dashboard/SearchFilters';
@@ -10,9 +11,15 @@ import { EnrollmentDetailModal } from '@/components/dashboard/EnrollmentDetailMo
 import RegistrationForm from '@/components/forms/RegistrationForm';
 import { Button } from '@/components/ui/button';
 import { useRegistrations } from '@/hooks/useRegistrations';
-import { registrationAPI } from '@/lib/api';
+import { registrationAPI, setClerkTokenGetter } from '@/lib/api';
 
 export default function Dashboard() {
+  const { getToken } = useAuth();
+  
+  // Set up Clerk token getter for API requests
+  useEffect(() => {
+    setClerkTokenGetter(getToken);
+  }, [getToken]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingRegistration, setEditingRegistration] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date()); // Auto-select today

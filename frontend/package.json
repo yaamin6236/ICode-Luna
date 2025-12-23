@@ -10,30 +10,31 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.1",
-    "@tanstack/react-query": "^5.17.9",
-    "axios": "^1.6.5",
-    "date-fns": "^3.2.0",
-    "recharts": "^2.10.3",
-    "framer-motion": "^10.18.0",
-    "lucide-react": "^0.307.0",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.0",
+    "@clerk/clerk-react": "^5.59.2",
+    "@fontsource/dm-sans": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0",
+    "@fontsource/manrope": "^5.0.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tabs": "^1.0.4",
-    "@radix-ui/react-popover": "^1.0.7",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@tanstack/react-query": "^5.17.9",
+    "axios": "^1.6.5",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "date-fns": "^3.2.0",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.307.0",
+    "react": "^18.2.0",
     "react-day-picker": "^8.10.0",
-    "@fontsource/dm-sans": "^5.0.0",
-    "@fontsource/manrope": "^5.0.0",
-    "@fontsource/jetbrains-mono": "^5.0.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
+    "recharts": "^2.10.3",
+    "tailwind-merge": "^2.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",
@@ -52,4 +53,3 @@
     "vite": "^5.0.11"
   }
 }
-

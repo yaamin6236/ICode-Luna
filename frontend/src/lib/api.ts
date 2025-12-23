@@ -9,26 +9,36 @@ const api = axios.create({
   },
 });
 
-// Auth token handling disabled for now - using external auth service later
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem('access_token');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
+// Clerk token will be added via setClerkToken function
+// Called from components that have access to Clerk's useAuth hook
+let clerkTokenGetter: (() => Promise<string | null>) | null = null;
 
-// // Handle auth errors
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       localStorage.removeItem('access_token');
-//       window.location.href = '/login';
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+export const setClerkTokenGetter = (getter: () => Promise<string | null>) => {
+  clerkTokenGetter = getter;
+};
+
+// Add Clerk token to all requests
+api.interceptors.request.use(async (config) => {
+  if (clerkTokenGetter) {
+    const token = await clerkTokenGetter();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// Handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Redirect to sign in page
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API - Disabled for now, will use external auth service later
 // export const authAPI = {
