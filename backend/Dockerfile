@@ -14,11 +14,14 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY ./app ./app
 
-# Expose port
+# Create directories for credentials (if using file-based credentials)
+RUN mkdir -p /app/credentials
+
+# Expose port (Railway will use $PORT env variable)
 EXPOSE 8000
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application with PORT variable from Railway
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 
