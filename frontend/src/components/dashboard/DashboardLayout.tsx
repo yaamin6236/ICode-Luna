@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { LayoutDashboard, BarChart3, LogOut, Menu, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useClerk } from '@clerk/clerk-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,10 +15,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { signOut } = useClerk();
+  const { toast } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await signOut(() => navigate('/login'));
+      toast({
+        title: 'Signed out',
+        description: 'You have been successfully signed out.',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sign out. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const navItems = [
