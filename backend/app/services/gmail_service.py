@@ -37,27 +37,42 @@ class GmailService:
         """Authenticate with Gmail API - supports both env vars and files"""
         creds = None
         
-        # Method 1: Try loading from base64 environment variables (for cloud deployment)
-        if settings.gmail_token_base64:
+        # Method 1: Try loading from individual OAuth credentials (cleanest approach)
+        if settings.gmail_client_id and settings.gmail_refresh_token:
             try:
-                print("[INFO] Loading Gmail token from environment variable")
-                token_json = base64.b64decode(settings.gmail_token_base64).decode('utf-8')
-                token_data = json.loads(token_json)
-                
+                print("[INFO] Loading Gmail credentials from individual environment variables")
                 creds = Credentials(
-                    token=token_data.get('token'),
-                    refresh_token=token_data.get('refresh_token'),
-                    token_uri=token_data.get('token_uri'),
-                    client_id=token_data.get('client_id'),
-                    client_secret=token_data.get('client_secret'),
-                    scopes=token_data.get('scopes', SCOPES)
+                    token=None,  # Will be fetched using refresh_token
+                    refresh_token=settings.gmail_refresh_token,
+                    token_uri="https://oauth2.googleapis.com/token",
+                    client_id=settings.gmail_client_id,
+                    client_secret=settings.gmail_client_secret,
+                    scopes=SCOPES
                 )
-                print("[OK] Gmail token loaded from environment")
+                
+                # Immediately refresh to get an access token (no browser needed!)
+                print("[INFO] Refreshing access token using refresh_token...")
+                creds.refresh(Request())
+                print("[OK] Access token refreshed successfully")
+                print("[OK] Gmail credentials ready (no browser needed)")
             except Exception as e:
-                print(f"[WARN] Failed to load token from environment: {e}")
+                print(f"[WARN] Failed to load from individual env vars: {e}")
                 creds = None
         
-        # Method 2: Try loading from file (for local development)
+        # Method 2: Try loading from base64 environment variables (for cloud deployment)
+        if not creds and settings.gmail_token_base64:
+            try:
+                print("[INFO] Loading Gmail token from base64 environment variable")
+                # Token is pickled, so decode as bytes and unpickle
+                token_bytes = base64.b64decode(settings.gmail_token_base64)
+                # Use encoding='latin1' to handle any byte values
+                creds = pickle.loads(token_bytes, encoding='latin1')
+                print("[OK] Gmail token loaded from base64 environment")
+            except Exception as e:
+                print(f"[WARN] Failed to load token from base64 environment: {e}")
+                creds = None
+        
+        # Method 3: Try loading from file (for local development)
         if not creds:
             token_path = settings.gmail_token_path
             if os.path.exists(token_path):
@@ -70,10 +85,18 @@ class GmailService:
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 print("[INFO] Refreshing expired Gmail token")
-                creds.refresh(Request())
-                print("[OK] Gmail token refreshed")
+                try:
+                    creds.refresh(Request())
+                    print("[OK] Gmail token refreshed")
+                except Exception as e:
+                    print(f"[ERROR] Failed to refresh token: {e}")
+                    raise FileNotFoundError(
+                        "Gmail token expired and could not be refreshed.\n"
+                        "Please re-authenticate locally and update GMAIL_TOKEN_BASE64 in Railway."
+                    )
             else:
-                # Try to get new credentials from credentials.json
+                # Cannot do OAuth flow on Railway (no browser)
+                # Only try OAuth flow if we have credentials and not on cloud
                 credentials_path = settings.gmail_credentials_path
                 credentials_data = None
                 
@@ -100,7 +123,8 @@ class GmailService:
                         "Please set GMAIL_CREDENTIALS_BASE64 or download credentials.json from Google Cloud Console."
                     )
                 
-                # Create flow and get credentials
+                # Only run OAuth flow locally (not on Railway)
+                print("[INFO] Token missing/invalid - attempting OAuth flow (requires browser)")
                 flow = InstalledAppFlow.from_client_config(
                     credentials_data, SCOPES
                 )

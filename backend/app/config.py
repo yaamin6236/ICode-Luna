@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     gmail_credentials_base64: str = ""
     gmail_token_base64: str = ""
     
+    # Gmail OAuth Credentials (Individual values - cleaner for cloud deployment)
+    gmail_client_id: str = ""
+    gmail_client_secret: str = ""
+    gmail_refresh_token: str = ""
+    gmail_user_email: str = ""
+    
     # Google Cloud Pub/Sub
     pubsub_verification_token: str = ""
     
