@@ -2,7 +2,7 @@
 CRUD endpoints for registration management.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 from bson import ObjectId
@@ -14,7 +14,6 @@ from ..models.registration import (
     RegistrationStatus
 )
 from ..db.mongodb import get_database
-from ..utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -54,8 +53,7 @@ async def get_registrations(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=500),
-    current_user = Depends(get_current_user)
+    limit: int = Query(100, ge=1, le=500)
 ):
     """
     Get all registrations with optional filters.
@@ -90,10 +88,7 @@ async def get_registrations(
 
 
 @router.get("/{registration_id}", response_model=RegistrationResponse)
-async def get_registration(
-    registration_id: str,
-    current_user = Depends(get_current_user)
-):
+async def get_registration(registration_id: str):
     """Get a specific registration by ID"""
     db = get_database()
     
@@ -109,10 +104,7 @@ async def get_registration(
 
 
 @router.post("/", response_model=RegistrationResponse, status_code=201)
-async def create_registration(
-    registration: RegistrationCreate,
-    current_user = Depends(get_current_user)
-):
+async def create_registration(registration: RegistrationCreate):
     """
     Create a new registration manually.
     Used when staff needs to add registrations not from emails.
@@ -134,7 +126,7 @@ async def create_registration(
         "totalCost": float(registration.totalCost) if registration.totalCost else None,
         "amountPaid": float(registration.amountPaid) if registration.amountPaid else None,
         "manualEntry": True,
-        "createdBy": current_user.username,
+        "createdBy": "system",  # No auth, so use "system"
         "updatedAt": datetime.utcnow()
     }
     
@@ -147,8 +139,7 @@ async def create_registration(
 @router.put("/{registration_id}", response_model=RegistrationResponse)
 async def update_registration(
     registration_id: str,
-    registration_update: RegistrationUpdate,
-    current_user = Depends(get_current_user)
+    registration_update: RegistrationUpdate
 ):
     """Update an existing registration"""
     db = get_database()
@@ -181,10 +172,7 @@ async def update_registration(
 
 
 @router.delete("/{registration_id}")
-async def delete_registration(
-    registration_id: str,
-    current_user = Depends(get_current_user)
-):
+async def delete_registration(registration_id: str):
     """
     Delete a registration (soft delete by setting status to cancelled).
     To permanently delete, use hard_delete=true query parameter.
@@ -215,8 +203,7 @@ async def delete_registration(
 @router.get("/by-camp-date/", response_model=List[RegistrationResponse])
 async def get_registrations_by_camp_date(
     camp_date: str = Query(..., description="Camp date to filter by (YYYY-MM-DD)"),
-    status: Optional[RegistrationStatus] = None,
-    current_user = Depends(get_current_user)
+    status: Optional[RegistrationStatus] = None
 ):
     """
     Get all registrations for a specific camp date.
@@ -255,10 +242,7 @@ async def get_registrations_by_camp_date(
 
 
 @router.get("/search/by-child/{child_name}")
-async def search_by_child_name(
-    child_name: str,
-    current_user = Depends(get_current_user)
-):
+async def search_by_child_name(child_name: str):
     """Search registrations by child name (fuzzy search)"""
     db = get_database()
     

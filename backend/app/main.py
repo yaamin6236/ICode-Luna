@@ -54,9 +54,12 @@ async def health_check():
 
 
 # Import and include routers
-from .api import webhook, registrations, analytics, auth
+from .api import webhook, registrations, analytics
 
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+# Auth disabled for now - will use external auth service later
+# from .api import auth
+# app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+
 app.include_router(webhook.router, prefix="/api/webhook", tags=["webhook"])
 app.include_router(registrations.router, prefix="/api/registrations", tags=["registrations"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])

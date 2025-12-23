@@ -22,12 +22,14 @@ router = APIRouter()
 
 # Temporary in-memory user store for demo
 # In production, this should be in MongoDB with proper user management
+# Pre-hashed password for "admin123" to avoid hashing at import time
 DEMO_USERS = {
     "admin": {
         "username": "admin",
         "email": "admin@icode.com",
         "full_name": "Admin User",
-        "hashed_password": get_password_hash("admin123"),  # Change in production!
+        # Password: admin123 (change in production!)
+        "hashed_password": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqFJ6j1C8i",
         "disabled": False
     }
 }

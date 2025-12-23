@@ -9,45 +9,45 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Auth token handling disabled for now - using external auth service later
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('access_token');
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
 
-// Handle auth errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+// // Handle auth errors
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       localStorage.removeItem('access_token');
+//       window.location.href = '/login';
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
-// Auth API
-export const authAPI = {
-  login: async (username: string, password: string) => {
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
-    
-    const response = await api.post('/api/auth/login', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
-  },
-  
-  getCurrentUser: async () => {
-    const response = await api.get('/api/auth/me');
-    return response.data;
-  },
-};
+// Auth API - Disabled for now, will use external auth service later
+// export const authAPI = {
+//   login: async (username: string, password: string) => {
+//     const formData = new FormData();
+//     formData.append('username', username);
+//     formData.append('password', password);
+//     
+//     const response = await api.post('/api/auth/login', formData, {
+//       headers: { 'Content-Type': 'multipart/form-data' },
+//     });
+//     return response.data;
+//   },
+//   
+//   getCurrentUser: async () => {
+//     const response = await api.get('/api/auth/me');
+//     return response.data;
+//   },
+// };
 
 // Registration API
 export const registrationAPI = {

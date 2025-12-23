@@ -2,13 +2,12 @@
 Analytics endpoints for revenue tracking and capacity management.
 """
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Query
 from typing import List, Dict
 from datetime import datetime, timedelta
 from collections import defaultdict
 
 from ..db.mongodb import get_database
-from ..utils.auth import get_current_user
 from ..models.registration import RegistrationStatus
 
 router = APIRouter()
@@ -17,8 +16,7 @@ router = APIRouter()
 @router.get("/revenue")
 async def get_revenue_analytics(
     start_date: datetime = Query(None),
-    end_date: datetime = Query(None),
-    current_user = Depends(get_current_user)
+    end_date: datetime = Query(None)
 ):
     """
     Get revenue analytics for a date range.
@@ -84,8 +82,7 @@ async def get_revenue_analytics(
 @router.get("/daily-capacity")
 async def get_daily_capacity(
     start_date: datetime = Query(None),
-    end_date: datetime = Query(None),
-    current_user = Depends(get_current_user)
+    end_date: datetime = Query(None)
 ):
     """
     Get daily enrollment capacity for calendar view.
@@ -145,8 +142,7 @@ async def get_daily_capacity(
 @router.get("/cancellations")
 async def get_cancellation_stats(
     start_date: datetime = Query(None),
-    end_date: datetime = Query(None),
-    current_user = Depends(get_current_user)
+    end_date: datetime = Query(None)
 ):
     """
     Get cancellation statistics and trends.
@@ -190,7 +186,7 @@ async def get_cancellation_stats(
 
 
 @router.get("/dashboard-summary")
-async def get_dashboard_summary(current_user = Depends(get_current_user)):
+async def get_dashboard_summary():
     """
     Get summary statistics for dashboard KPI cards.
     """
